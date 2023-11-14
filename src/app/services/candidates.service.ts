@@ -1,62 +1,39 @@
-import { Inject, Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Candidate } from '../models/candidate';
-import { APP_CONFIG, AppConfig } from '../config/app.config';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CandidatesService {
-  private candidates: Candidate[] = [];
+  private api = 'http://localhost:3000/api';
 
-  private subject: BehaviorSubject<Candidate[]>;
-
-  constructor(@Optional() @Inject(APP_CONFIG) config: AppConfig) {
-    this.candidates =
-      config && Array.isArray(config.candidates) ? config.candidates : [];
-    this.subject = new BehaviorSubject(this.candidates);
-  }
+  constructor(private http: HttpClient) {}
 
   getCandidates(): Observable<Candidate[]> {
-    return this.subject.asObservable();
+    return this.http.get<Candidate[]>(`${this.api}/candidates`);
   }
 
   getCandidate(id: number | string) {
-    const candidate = this.candidates.find((c) => c.id === id);
-    if (candidate) {
-      return of(candidate);
-    }
-    const cause = {
-      status: 404,
-      error: new Error('Recurso no encontrado'),
-      message: 'Recurso no encontrado',
-    };
-    throw new Error('Recurso no encontrado', { cause });
+    return this.http.get<Candidate>(`${this.api}/candidates/${id}`);
   }
 
   save(candidate: Candidate): Observable<Candidate> {
-    const savedCandidate = Object.assign({}, candidate, {
-      id: this.candidates.length,
+    return this.http.post<Candidate>(`${this.api}/candidates`, candidate, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
-    this.candidates.push(savedCandidate);
-    this.notify();
-    return of(savedCandidate);
   }
 
   update(candidate: Candidate): Observable<Candidate> {
-    let index = -1;
     if (typeof candidate.id === 'number' || typeof candidate === 'string') {
-      this.candidates = this.candidates.map((c, i) => {
-        if (c.id === candidate.id) {
-          index = i;
-          return candidate;
-        }
-        return c;
-      });
-      if (index > -1) {
-        this.notify();
-        return of(this.candidates[index]);
-      }
+      return this.http.put<Candidate>(
+        `${this.api}/candidates/${candidate.id}`,
+        candidate
+      );
     }
     const cause = {
       status: 404,
@@ -67,24 +44,6 @@ export class CandidatesService {
   }
 
   remove(id: string | number) {
-    const candidateIndex = this.candidates.findIndex((c) => c.id === id);
-    if (candidateIndex > -1) {
-      this.candidates.splice(candidateIndex, 1);
-      this.notify();
-      return of({
-        status: 204,
-        message: 'Recurso borrado',
-      });
-    }
-    const cause = {
-      status: 404,
-      error: new Error('Recurso no encontrado'),
-      message: 'Recurso no encontrado',
-    };
-    throw new Error('Recurso no encontrado', { cause });
-  }
-
-  private notify() {
-    this.subject.next(this.candidates);
+    return this.http.delete(`${this.api}/candidates/${id}`);
   }
 }

@@ -16,7 +16,7 @@ export class CreateCandidateComponent {
     private router: Router
   ) {}
   onSubmit(candidate: Candidate) {
-    this.service.save(candidate);
+    this.service.save(candidate).subscribe();
     this.router.navigate(['/']);
   }
   back() {

@@ -30,7 +30,7 @@ export class EditCandidateComponent implements OnInit {
   }
 
   onSubmit(candidate: Candidate) {
-    this.candidatesService.update(candidate);
+    this.candidatesService.update(candidate).subscribe();
     this.router.navigate(['/']);
   }
 

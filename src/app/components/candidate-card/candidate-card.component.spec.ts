@@ -6,6 +6,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Experience } from 'src/app/models/experience';
 import { AppMaterialModule } from 'src/app/app-material.module';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 let loader: HarnessLoader;
 
@@ -16,7 +17,11 @@ describe('CandidateCardComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CandidateCardComponent],
-      imports: [AppMaterialModule, NoopAnimationsModule],
+      imports: [
+        AppMaterialModule,
+        NoopAnimationsModule,
+        HttpClientTestingModule,
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     });
     fixture = TestBed.createComponent(CandidateCardComponent);

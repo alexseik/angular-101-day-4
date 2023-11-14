@@ -29,7 +29,7 @@ export class CandidatesService {
   }
 
   update(candidate: Candidate): Observable<Candidate> {
-    if (typeof candidate.id === 'number' || typeof candidate === 'string') {
+    if (typeof candidate.id === 'number' || typeof candidate.id === 'string') {
       return this.http.put<Candidate>(
         `${this.api}/candidates/${candidate.id}`,
         candidate
